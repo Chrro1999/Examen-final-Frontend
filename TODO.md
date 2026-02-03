@@ -1,0 +1,5 @@
+- [x] Delete authService.js
+- [x] Delete Login.js
+- [x] Simplify api.js: remove auth interceptors and imports
+- [x] Simplify Navbar.js: remove auth state, logout, login link
+- [x] Update App.js: remove Login import and /login route
