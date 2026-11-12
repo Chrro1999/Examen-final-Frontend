@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createMovie, getMovieById, updateMovie } from '../services/movieService';
 import { getAllDirectors } from '../services/directorService';
+import { getApiErrorMessage } from '../services/api';
 import '../styles/Form.css';
 
 const MovieForm = () => {
@@ -16,29 +17,22 @@ const MovieForm = () => {
         release_year: '',
         synopsis: '',
         duration_minutes: '',
-        reating: ''
+        rating: ''
     });
     const [directors, setDirectors] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        loadDirectors();
-        if (isEditMode) {
-            loadMovie();
-        }
-    }, [id]);
-
-    const loadDirectors = async () => {
+    const loadDirectors = useCallback(async () => {
         try {
             const data = await getAllDirectors();
             setDirectors(data.results || data);
         } catch (err) {
             console.error('Error al cargar los directores', err);
         }
-    };
+    }, []);
 
-    const loadMovie = async () => {
+    const loadMovie = useCallback(async () => {
         try {
             setLoading(true);
             const data = await getMovieById(id);
@@ -49,7 +43,7 @@ const MovieForm = () => {
                 release_year: data.release_year || '',
                 synopsis: data.synopsis || '',
                 duration_minutes: data.duration_minutes || '',
-                reating: data.reating || ''
+                rating: data.rating ?? ''
             });
         } catch (err) {
             setError('Error al cargar la película');
@@ -57,7 +51,14 @@ const MovieForm = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        loadDirectors();
+        if (isEditMode) {
+            loadMovie();
+        }
+    }, [isEditMode, loadDirectors, loadMovie]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -85,11 +86,12 @@ const MovieForm = () => {
             director: parseInt(formData.director),
             release_year: parseInt(formData.release_year),
             duration_minutes: formData.duration_minutes ? parseInt(formData.duration_minutes) : null,
-            reating: formData.reating ? parseFloat(formData.reating) : null
+            rating: formData.rating ? parseFloat(formData.rating) : null
         };
 
         try {
             setLoading(true);
+            setError(null);
             if (isEditMode) {
                 await updateMovie(id, movieData);
             } else {
@@ -97,8 +99,7 @@ const MovieForm = () => {
             }
             navigate('/movies');
         } catch (err) {
-            setError('Error al guardar la película');
-            console.error(err);
+            setError(`No se pudo guardar la película: ${getApiErrorMessage(err)}`);
         } finally {
             setLoading(false);
         }
@@ -112,12 +113,12 @@ const MovieForm = () => {
                 <h1>{isEditMode ? 'Editar Película' : 'Nueva Película'}</h1>
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && <div className="error-message" role="alert">{error}</div>}
 
             <form onSubmit={handleSubmit} className="form">
                 <div className="form-row">
                     <div className="form-group">
-                        <label htmlfor="title">Título:</label>
+                        <label htmlFor="title">Título:</label>
                         <input
                             type="text"
                             id="title"
@@ -191,12 +192,12 @@ const MovieForm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="reating">Calificación:</label>
+                        <label htmlFor="rating">Calificación:</label>
                         <input
                             type="number"
-                            id="reating"
-                            name="reating"
-                            value={formData.reating}
+                            id="rating"
+                            name="rating"
+                            value={formData.rating}
                             onChange={handleChange}
                             min="0"
                             max="10"
@@ -240,4 +241,3 @@ const MovieForm = () => {
 };
 
 export default MovieForm;
-

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
  Movies Manager — Frontend React
 
 Interfaz de usuario construida con React para gestionar directores y películas.
@@ -75,7 +74,7 @@ La aplicación estará disponible en:
 
 🔗 Configuración de la API
 El archivo src/services/api.js configura la dirección del backend de Django:
-javascriptconst API_BASE_URL = 'http://127.0.0.1:8000/api';
+javascriptconst API_BASE_URL = 'http://127.0.0.1:8000';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -84,7 +83,7 @@ const api = axios.create({
     },
     withCredentials: true,
 });
-Si tu Django corre en una URL diferente, solo cambia el valor de API_BASE_URL.
+Los endpoints son `/directors/` y `/movies/`. Si Django corre en otra dirección, define `REACT_APP_API_URL` con el origen del backend, sin agregar `/api`.
 
 🛣️ Rutas de la aplicación
 RutaComponenteDescripción/HomePágina de inicio/directorsDirectorListLista de todos los directores/directors/newDirectorFormFormulario para crear director/directors/:idDirectorDetailDetalle de un director y sus películas/directors/edit/:idDirectorFormFormulario para editar director/moviesMovieListLista de todas las películas/movies/newMovieFormFormulario para crear película/movies/:idMovieDetailDetalle de una película/movies/edit/:idMovieFormFormulario para editar película
@@ -127,7 +126,7 @@ El flujo de datos cuando el usuario visita la lista de películas es así:
 4. Llama a getAllMovies() en movieService.js
         ↓
 5. movieService usa axios para hacer:
-        GET http://127.0.0.1:8000/api/movies/
+        GET http://127.0.0.1:8000/movies/
         ↓
 6. Django recibe la petición, consulta la base de datos
         ↓
@@ -154,7 +153,6 @@ TerminalComandoPuertoTerminal 1 (Django)python manage.py runserver8000Terminal 2
 Este frontend consume la API del backend de Django. Ver repositorio: Movies Manager — Backend Django
 
 Proyecto desarrollado como examen parcial — Curso de Django
-=======
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -245,4 +243,3 @@ npm start
 5. Las peticiones protegidas añadirán automáticamente `Authorization: Bearer <token>`.
 
 Si necesitas adaptar el endpoint/token payload, edita `src/services/authService.js`.
->>>>>>> f2a3b19 (Initial commit frontend)

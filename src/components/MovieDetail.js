@@ -1,5 +1,5 @@
 // src/components/MovieDetail.js
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getMovieById } from '../services/movieService';
 import '../styles/Detail.css';
@@ -10,11 +10,7 @@ const MovieDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadMovie();
-  }, [id]);
-
-  const loadMovie = async () => {
+  const loadMovie = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getMovieById(id);
@@ -25,7 +21,11 @@ const MovieDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadMovie();
+  }, [loadMovie]);
 
   if (loading) return <div className="loading">Cargando...</div>;
   if (error) return <div className="error">{error}</div>;

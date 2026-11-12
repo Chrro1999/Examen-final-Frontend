@@ -24,81 +24,40 @@ export const getDirectorById = async (id) => {
 
 export const createDirector = async (directorData) => {
     try {
-        console.log('Creating director with data:', directorData);
-        
-        // Obtener token CSRF primero
-        let csrfToken = await getCsrfToken();
-        
-        const response = await api.post(DIRECTORS_ENDPOINT, directorData, {
-            headers: csrfToken ? {
-                'X-CSRFToken': csrfToken
-            } : {}
-        });
-        
-        console.log('Director created successfully:', response.data);
+        const response = await api.post(DIRECTORS_ENDPOINT, directorData);
         return response.data;
     } catch (error) {
-        console.error('Error creating director:', {
-            message: error.message,
-            status: error.response?.status,
-            data: error.response?.data,
-            headers: error.response?.headers
-        });
+        console.error('Error creating director:', error.response?.data || error.message);
         throw error;
     }
-};  
+};
 
 export const updateDirector = async (id, directorData) => {
     try {
-        console.log(`Updating director ${id} with data:`, directorData);
-        
-        // Obtener token CSRF primero
-        let csrfToken = await getCsrfToken();
-        
-        const response = await api.put(`${DIRECTORS_ENDPOINT}${id}/`, directorData, {
-            headers: csrfToken ? {
-                'X-CSRFToken': csrfToken
-            } : {}
-        });
-        
+        const response = await api.put(`${DIRECTORS_ENDPOINT}${id}/`, directorData);
         return response.data;
     } catch (error) {
-        console.error(`Error updating director ${id}:`, error);
+        console.error(`Error updating director ${id}:`, error.response?.data || error.message);
         throw error;
     }
 };
 
 export const patchDirector = async (id, directorData) => {
     try {
-        // Obtener token CSRF primero
-        let csrfToken = await getCsrfToken();
-        
-        const response = await api.patch(`${DIRECTORS_ENDPOINT}${id}/`, directorData, {
-            headers: csrfToken ? {
-                'X-CSRFToken': csrfToken
-            } : {}
-        });
+        const response = await api.patch(`${DIRECTORS_ENDPOINT}${id}/`, directorData);
         return response.data;
     } catch (error) {
-        console.error(`Error patching director ${id}:`, error);
+        console.error(`Error patching director ${id}:`, error.response?.data || error.message);
         throw error;
     }
 };
 
-// CORREGIDO: delete en lugar de delelete
 export const deleteDirector = async (id) => {
     try {
-        // Obtener token CSRF primero
-        let csrfToken = await getCsrfToken();
-        
-        const response = await api.delete(`${DIRECTORS_ENDPOINT}${id}/`, {
-            headers: csrfToken ? {
-                'X-CSRFToken': csrfToken
-            } : {}
-        });
+        const response = await api.delete(`${DIRECTORS_ENDPOINT}${id}/`);
         return response.data;
     } catch (error) {
-        console.error(`Error deleting director ${id}:`, error);
+        console.error(`Error deleting director ${id}:`, error.response?.data || error.message);
         throw error;
     }
 };
@@ -122,32 +81,5 @@ export const searchDirectors = async (searchTerm) => {
     } catch (error) {
         console.error('Error searching directors:', error);
         throw error;
-    }
-};
-
-// Función para obtener token CSRF
-const getCsrfToken = async () => {
-    try {
-        // Django generalmente establece el token CSRF en una cookie
-        // Podemos leerlo de la cookie
-        const cookieValue = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('csrftoken='))
-            ?.split('=')[1];
-        
-        if (cookieValue) {
-            console.log('CSRF token found in cookie');
-            return cookieValue;
-        }
-        
-        // Si no hay cookie, intentar obtenerlo del endpoint
-        const response = await api.get('/csrf_token/', {
-            baseURL: 'http://127.0.0.1:8000'  // URL completa temporal
-        });
-        
-        return response.data.csrfToken;
-    } catch (error) {
-        console.warn('Could not get CSRF token:', error.message);
-        return null;
     }
 };

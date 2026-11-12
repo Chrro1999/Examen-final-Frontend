@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createDirector, getDirectorById, updateDirector } from '../services/directorService';
+import { getApiErrorMessage } from '../services/api';
 import '../styles/Form.css';
 
 const DirectorForm = () => {
@@ -17,13 +18,7 @@ const DirectorForm = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (isEditMode) {
-            loadDirector();
-        }
-    }, [id]);
-
-    const loadDirector = async () => {
+    const loadDirector = useCallback(async () => {
         try {
             setLoading(true);
             const data = await getDirectorById(id);
@@ -39,7 +34,13 @@ const DirectorForm = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        if (isEditMode) {
+            loadDirector();
+        }
+    }, [id, isEditMode, loadDirector]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -61,6 +62,7 @@ const DirectorForm = () => {
 
         try {
             setLoading(true);
+            setError(null);
             if (isEditMode) {
                 await updateDirector(id, formData);
             } else {
@@ -68,14 +70,13 @@ const DirectorForm = () => {
             }
             navigate('/directors');
         } catch (err) {
-            setError('Error al guardar el director');
-            console.error(err);
+            setError(`No se pudo guardar el director: ${getApiErrorMessage(err)}`);
         } finally {
             setLoading(false);
         }
     };
 
-    if (loading && !isEditMode) return <div className="loading">Cargando...</div>;
+    if (loading && isEditMode) return <div className="loading">Cargando...</div>;
 
     return (
         <div className="form-container">
@@ -83,7 +84,7 @@ const DirectorForm = () => {
                 <h1>{isEditMode ? 'Editar Director' : 'Crear Director'}</h1>
             </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && <div className="error-message" role="alert">{error}</div>}
 
             <form onSubmit={handleSubmit} className="form">
                 <div className="form-group">
@@ -96,6 +97,18 @@ const DirectorForm = () => {
                         onChange={handleChange}
                         required
                         placeholder= "Ejemplo: Steven Spielberg"
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="nationality">Nacionalidad:</label>
+                    <input
+                        type="text"
+                        id="nationality"
+                        name="nationality"
+                        value={formData.nationality}
+                        onChange={handleChange}
+                        placeholder="Ejemplo: Mexicana"
                     />
                 </div>
 

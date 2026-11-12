@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getDirectorById } from '../services/directorService';
 import '../styles/Detail.css';
@@ -9,11 +9,7 @@ const DirectorDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadDirector();
-  }, [id]);
-
-  const loadDirector = async () => {
+  const loadDirector = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getDirectorById(id);
@@ -24,7 +20,11 @@ const DirectorDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadDirector();
+  }, [loadDirector]);
 
   if (loading) return <div className="loading">Cargando...</div>;
   if (error) return <div className="error">{error}</div>;
